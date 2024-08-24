@@ -15,11 +15,12 @@ const FiltersComponent = () => {
     } else {
       searchParams.append(filterName, value);
     }
+    searchParams.delete("search");
     setSearchParams(searchParams);
   };
 
   return (
-    <div className="w-1/2 md:w-1/6 p-4 border-r border-gray-200 bg-whiteo shadow-md relative">
+    <div className="w-full p-4 border-r border-gray-200 bg-whiteo shadow-md relative">
       {/* RAM Filters */}
       <div className="mb-4">
         <h3 className="text-lg font-semibold mb-2">RAM</h3>

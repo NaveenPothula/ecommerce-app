@@ -7,19 +7,50 @@ import {
   FaFilter,
   FaTimes,
 } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+import FiltersComponent from "./Filters";
+
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  let initialSearch = searchParams.get("search");
+  if (!initialSearch) {
+    initialSearch = "";
+  }
+  const [search, setSearch] = useState(initialSearch);
 
   const location = useLocation();
   const isHomePage = location.pathname === "/";
+
+  const handleSearch = () => {
+    // const params = new URLSearchParams(searchParams);
+
+    // // Clear all existing parameters
+    // params.forEach((value, key) => {
+    //   params.delete(key);
+    // });
+    // setSearchParams("");
+    if (search.trim() !== "") {
+      const newParams = new URLSearchParams();
+
+      // Add new query parameters
+      newParams.set("search", search);
+
+      // Update the URL with the new parameters
+      setSearchParams(newParams);
+      //   setSearchParams("");
+      //   searchParams.append("search", search);
+      //   setSearchParams(searchParams);
+    }
+  };
   // State for toggling mobile menu
 
   return (
     <nav className="bg-white shadow-lg p-4 relative">
       {/* First Row: Logo, Search Bar, User Icon, Cart Icon, and Menu Button */}
-      <div className="container  flex items-center justify-between  relative">
+      <div className="container  flex items-center justify-between gap-4 relative">
         {/* Logo */}
         <div
           className={`flex items-center ${
@@ -41,10 +72,15 @@ const Navbar = () => {
           <div className="hidden md:flex flex-grow items-center mx-4 max-w-lg">
             <input
               type="text"
-              className="flex-grow px-4 py-2 border rounded-l-md focus:outline-none"
+              className="flex-grow px-4 py-2 border rounded-l-md focus:outline-none max-w-sm"
               placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-r-md">
+            <button
+              className="bg-blue-600 text-white px-4 py-2 rounded-r-md"
+              onClick={handleSearch}
+            >
               <FaSearch />
             </button>
           </div>
@@ -69,13 +105,32 @@ const Navbar = () => {
         </div>
         {/* Menu Button (only visible on small screens) */}
         <div className="flex items-center space-x-2 ml-2 md:hidden">
-          <button
+          {/* <button
             className="text-gray-800"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <FaTimes /> : <FaBars />}{" "}
-            {/* Conditional rendering of icons */}
-          </button>
+           
+          </button> */}
+          {isMobileMenuOpen && (
+            <button
+              className="text-gray-800"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <FaTimes />
+            </button>
+          )}
+          {!isMobileMenuOpen && (
+            <button
+              className="text-gray-800"
+              onClick={() => {
+                setIsMobileMenuOpen(true);
+                setShowFilter(false);
+              }}
+            >
+              <FaBars />
+            </button>
+          )}
           {isMobileMenuOpen && (
             <div className="absolute w-full inset-x-0 top-full px-2 py-2 bg-white shadow-lg md:hidden z-50">
               {/* Menu Items */}
@@ -133,23 +188,48 @@ const Navbar = () => {
       {/* Mobile Menu Items: Directly Below the Menu Button */}
 
       {/* Second Row: Filter Icon and Search Bar (visible only on small screens) */}
-      <div className="flex items-center mt-4 md:hidden">
-        {/* Filter Icon */}
-        <div>
-          <FaFilter className="text-gray-800 mr-2 ml-2" />
+      {isHomePage && (
+        <div className="flex items-center mt-4 md:hidden">
+          {/* Filter Icon */}
+          <div>
+            {!showFilter && (
+              <button
+                className="text-gray-800 md:hidden ml-2 mr-4"
+                onClick={() => {
+                  setShowFilter(true);
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                <FaFilter />
+              </button>
+            )}
+            {showFilter && (
+              <button
+                className="text-gray-800 md:hidden ml-2 mr-4"
+                onClick={() => setShowFilter(false)}
+              >
+                <FaTimes />
+              </button>
+            )}
+            {showFilter && (
+              <div className="absolute w-1/2 bg-white shadow-lg z-50 top-full">
+                <FiltersComponent /> {/* Your filter component */}
+              </div>
+            )}
+          </div>
+          {/* Search Bar */}
+          <div className="flex-grow flex items-center">
+            <input
+              type="text"
+              className="flex-grow px-4 py-2 border rounded-l-md focus:outline-none"
+              placeholder="Search..."
+            />
+            <button className="bg-blue-600 text-white px-3 py-2 rounded-r-md">
+              <FaSearch />
+            </button>
+          </div>
         </div>
-        {/* Search Bar */}
-        <div className="flex-grow flex items-center">
-          <input
-            type="text"
-            className="flex-grow px-4 py-2 border rounded-l-md focus:outline-none"
-            placeholder="Search..."
-          />
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-r-md">
-            <FaSearch />
-          </button>
-        </div>
-      </div>
+      )}
     </nav>
   );
 };
